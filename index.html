@@ -977,7 +977,7 @@ async function loadFromCloud(showFeedback = false) {
 
   try {
     const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
-      headers: { 'X-Master-Key': cfg.apiKey }
+      headers: { 'X-Access-Key': cfg.apiKey }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -1008,7 +1008,7 @@ async function saveToCloud() {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': cfg.apiKey
+        'X-Access-Key': cfg.apiKey
       },
       body: JSON.stringify(state)
     });
