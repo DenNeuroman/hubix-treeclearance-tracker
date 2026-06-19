@@ -200,13 +200,19 @@
   .setup-note {
     margin-top: 16px;
     padding: 10px 12px;
-    background: rgba(255,199,0,.07);
-    border: 1px solid rgba(255,199,0,.15);
+    background: rgba(74,158,204,.07);
+    border: 1px solid rgba(74,158,204,.18);
     border-radius: 6px;
-    font-size: 11px;
-    color: #a08800;
-    line-height: 1.5;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
   }
+  .setup-note a {
+    color: var(--blue);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .setup-note a:hover { text-decoration: underline; }
 
   /* ── Filters ────────────────────────────────────────────────────────── */
   .filters {
@@ -356,26 +362,25 @@
 <!-- ════════════════ SETUP OVERLAY ════════════════════════════════════════ -->
 <div id="setup-overlay">
   <div class="setup-box">
-    <h2>⚡ Підключення <span>JSONbin</span></h2>
-    <p>Вставте ключі з вашого акаунту на jsonbin.io. Вони збережуться у браузері і будуть використовуватись автоматично.</p>
+    <h2>🔒 Підключення до <span>спільної бази</span></h2>
+    <p>Введіть логін і пароль, щоб бачити спільний прогрес і зберігати зміни для всієї команди.</p>
 
     <div class="setup-field">
-      <label>MASTER KEY (або Access Key)</label>
-      <input type="password" id="input-apikey" placeholder="$2a$10$..." autocomplete="off" spellcheck="false">
+      <label>ЛОГІН</label>
+      <input type="text" id="input-binid" placeholder="Введіть логін..." autocomplete="off" spellcheck="false">
     </div>
     <div class="setup-field">
-      <label>BIN ID</label>
-      <input type="text" id="input-binid" placeholder="6849abc123def456..." autocomplete="off" spellcheck="false">
+      <label>ПАРОЛЬ</label>
+      <input type="password" id="input-apikey" placeholder="Введіть пароль..." autocomplete="off" spellcheck="false">
     </div>
 
     <div class="setup-note">
-      💡 <strong>Де знайти:</strong><br>
-      API Key → jsonbin.io → Account → API Keys<br>
-      Bin ID → Bins → відкрити потрібний Bin → ID у URL або в інфо панелі
+      Не маєте логіну і пароля? Зверніться до
+      <a href="https://t.me/dentelecom" target="_blank">адміністратора системи</a>.
     </div>
 
     <div class="setup-actions">
-      <button class="btn-primary" onclick="saveConfig()">Зберегти і підключити</button>
+      <button class="btn-primary" onclick="saveConfig()">Увійти</button>
       <button class="btn-secondary" onclick="skipConfig()">Локальний режим</button>
     </div>
   </div>
@@ -415,7 +420,7 @@
     <span class="sync-text" id="sync-text">Ініціалізація…</span>
     <div class="sync-actions">
       <button class="btn-sm" id="btn-refresh" onclick="loadFromCloud(true)" title="Оновити стан з хмари">↻ Оновити</button>
-      <button class="btn-sm" onclick="openSettings()" title="Змінити ключі JSONbin">⚙ Налаштування</button>
+      <button class="btn-sm" onclick="openSettings()" title="Змінити логін і пароль">🔒 Вихід</button>
     </div>
   </div>
 
@@ -932,7 +937,7 @@ function loadConfig() {
 function saveConfig() {
   const apiKey = document.getElementById('input-apikey').value.trim();
   const binId  = document.getElementById('input-binid').value.trim();
-  if (!apiKey || !binId) { alert('Будь ласка, вкажіть обидва поля.'); return; }
+  if (!apiKey || !binId) { alert('Будь ласка, введіть логін і пароль.'); return; }
   cfg = { apiKey, binId };
   localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
   cloudMode = true;
@@ -1129,12 +1134,12 @@ function applyFilter() {
     document.getElementById('input-apikey').value = cfg.apiKey || '';
     document.getElementById('input-binid').value  = cfg.binId  || '';
     document.getElementById('setup-overlay').classList.add('hidden');
-    setSyncStatus('loading', 'Підключення до JSONbin…');
+    setSyncStatus('loading', 'Підключення до спільної бази…');
     loadFromCloud(true);
   } else {
     // Show setup overlay — let user decide
     // (overlay visible by default)
-    setSyncStatus('idle', 'Очікування підключення…');
+    setSyncStatus('idle', 'Очікування входу…');
   }
 })();
 </script>
