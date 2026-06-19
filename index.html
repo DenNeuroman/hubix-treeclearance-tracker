@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUBIX Tree Clearance — SEO Трекер | ASSECURO</title>
+<style>
+  /* ── Tokens ─────────────────────────────────────────────────────────── */
+  :root {
+    --bg:        #0e1117;
+    --bg2:       #161b25;
+    --bg3:       #1d2433;
+    --border:    #252d3d;
+    --border2:   #2e3a50;
+    --text:      #d4dbe8;
+    --text-dim:  #6b7a96;
+    --text-mute: #3e4d66;
+    --yellow:    #ffc700;
+    --yellow-dim:#7a5f00;
+    --blue:      #4a9ecc;
+    --blue-dim:  #1c3e54;
+    --green:     #3ecf8e;
+    --green-dim: #0d3d24;
+    --p0:        #ff4d4d;
+    --p1:        #ff8c2a;
+    --p2:        #ffc700;
+    --p3:        #6b7a96;
+    --radius:    8px;
+    --radius-sm: 5px;
+    --mono:      'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --sans:      'Inter', 'Segoe UI', system-ui, sans-serif;
+    --header-h:  116px;
+  }
+
+  /* ── Reset ──────────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Sticky header ──────────────────────────────────────────────────── */
+  #header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px 8px;
+    gap: 16px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-bolt {
+    font-size: 20px;
+    line-height: 1;
+    filter: drop-shadow(0 0 6px var(--yellow));
+  }
+
+  .logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    color: var(--text);
+  }
+  .logo-text span { color: var(--yellow); }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    letter-spacing: .02em;
+  }
+
+  /* Progress area */
+  .progress-area {
+    flex: 1;
+    max-width: 460px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .progress-meta strong {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--yellow);
+    font-family: var(--mono);
+    letter-spacing: -.02em;
+  }
+  .progress-meta .pct { color: var(--text-dim); }
+  .progress-bar-track {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--yellow-dim), var(--yellow));
+    border-radius: 99px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 8px var(--yellow-dim);
+  }
+
+  /* Stats */
+  .stats {
+    display: flex;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .stat {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .stat strong {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: var(--mono);
+  }
+  .stat.done strong { color: var(--green); }
+  .stat.wip  strong { color: var(--blue); }
+  .stat.todo strong { color: var(--text-dim); }
+
+  /* ── Filter tabs ────────────────────────────────────────────────────── */
+  .filters {
+    display: flex;
+    gap: 4px;
+    padding: 6px 24px 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all .18s;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .filter-btn.active {
+    background: var(--blue-dim);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+  .filter-btn.active.yellow {
+    background: rgba(255,199,0,.12);
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+
+  /* Priority filter dots */
+  .filter-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  /* ── Main content ───────────────────────────────────────────────────── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: calc(var(--header-h) + 24px) 24px 80px;
+  }
+
+  /* ── Phase block ────────────────────────────────────────────────────── */
+  .phase {
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: opacity .2s;
+  }
+  .phase.hidden { display: none; }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--bg2);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .phase-header:hover { background: var(--bg3); }
+
+  .phase-bolt {
+    font-size: 16px;
+    filter: drop-shadow(0 0 4px var(--yellow));
+    flex-shrink: 0;
+  }
+
+  .phase-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    flex: 1;
+  }
+  .phase-title span {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-dim);
+    margin-left: 8px;
+    font-family: var(--mono);
+  }
+
+  .phase-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .phase-mini-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .phase-mini-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 99px;
+    transition: width .5s;
+  }
+
+  .phase-chevron {
+    font-size: 12px;
+    color: var(--text-mute);
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .phase-header.collapsed .phase-chevron { transform: rotate(-90deg); }
+
+  .phase-body { padding: 4px 0; }
+  .phase-body.collapsed { display: none; }
+
+  /* ── Task row ───────────────────────────────────────────────────────── */
+  .task {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s, opacity .2s;
+    position: relative;
+  }
+  .task:last-child { border-bottom: none; }
+  .task:hover { background: rgba(255,255,255,.015); }
+  .task.hidden { display: none; }
+
+  /* Status cycling area */
+  .task-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  /* Custom checkbox */
+  .cb {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border2);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+  .cb:hover { border-color: var(--blue); background: var(--blue-dim); }
+  .cb.wip { border-color: var(--blue); background: var(--blue-dim); }
+  .cb.done { border-color: var(--green); background: var(--green-dim); }
+  .cb svg { display: none; }
+  .cb.wip svg.icon-wip { display: block; }
+  .cb.done svg.icon-done { display: block; }
+
+  /* Priority dot */
+  .prio {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .prio.p0 { background: var(--p0); box-shadow: 0 0 5px var(--p0); }
+  .prio.p1 { background: var(--p1); box-shadow: 0 0 5px rgba(255,140,42,.5); }
+  .prio.p2 { background: var(--p2); box-shadow: 0 0 5px rgba(255,199,0,.4); }
+  .prio.p3 { background: var(--p3); }
+
+  /* Task body */
+  .task-body { flex: 1; min-width: 0; }
+
+  .task-title {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .task.done-state .task-title {
+    text-decoration: line-through;
+    color: var(--text-dim);
+  }
+
+  .task-hint {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    line-height: 1.45;
+  }
+
+  .task-url {
+    font-size: 10.5px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    margin-bottom: 5px;
+  }
+
+  .task-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .tag {
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    font-family: var(--mono);
+  }
+  .tag.opencart { background: rgba(41,121,255,.15); color: #6fa8ff; border: 1px solid rgba(41,121,255,.25); }
+  .tag.seo      { background: rgba(62,207,142,.12); color: #3ecf8e; border: 1px solid rgba(62,207,142,.2); }
+  .tag.content  { background: rgba(255,199,0,.12);  color: var(--yellow); border: 1px solid rgba(255,199,0,.2); }
+  .tag.b2b      { background: rgba(200,130,255,.12); color: #c882ff; border: 1px solid rgba(200,130,255,.2); }
+  .tag.ads      { background: rgba(255,100,100,.12); color: #ff7a7a; border: 1px solid rgba(255,100,100,.2); }
+  .tag.p0       { background: rgba(255,77,77,.15);  color: #ff6b6b; border: 1px solid rgba(255,77,77,.25); }
+  .tag.p1       { background: rgba(255,140,42,.12); color: var(--p1); border: 1px solid rgba(255,140,42,.2); }
+  .tag.p2       { background: rgba(255,199,0,.1);   color: #e0b000; border: 1px solid rgba(255,199,0,.2); }
+  .tag.p3       { background: rgba(107,122,150,.12); color: var(--p3); border: 1px solid rgba(107,122,150,.2); }
+
+  /* Prio label in tag */
+  .task-prio-label {
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10.5px;
+    font-weight: 700;
+    font-family: var(--mono);
+    letter-spacing: .04em;
+  }
+  .prio-tag-p0 { background: rgba(255,77,77,.15); color: #ff6b6b; border: 1px solid rgba(255,77,77,.3); }
+  .prio-tag-p1 { background: rgba(255,140,42,.13); color: #ff8c2a; border: 1px solid rgba(255,140,42,.25); }
+  .prio-tag-p2 { background: rgba(255,199,0,.1); color: #c9a000; border: 1px solid rgba(255,199,0,.2); }
+  .prio-tag-p3 { background: rgba(107,122,150,.12); color: #6b7a96; border: 1px solid rgba(107,122,150,.2); }
+
+  /* Status text badge */
+  .status-badge {
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    flex-shrink: 0;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all .15s;
+    margin-top: 2px;
+  }
+  .status-badge.todo { background: var(--bg3); color: var(--text-mute); border: 1px solid var(--border2); }
+  .status-badge.wip  { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(74,158,204,.3); }
+  .status-badge.done { background: var(--green-dim); color: var(--green); border: 1px solid rgba(62,207,142,.3); }
+  .status-badge:hover { opacity: .75; }
+
+  /* ── Empty state ────────────────────────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-dim);
+    font-size: 13px;
+    display: none;
+  }
+  .empty-state .bolt { font-size: 32px; display: block; margin-bottom: 12px; opacity: .4; }
+
+  /* ── Scrollbar ──────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+  /* ── Responsive ─────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    :root { --header-h: 148px; }
+    .header-top { flex-wrap: wrap; gap: 10px; }
+    .progress-area { order: 3; width: 100%; max-width: 100%; }
+    .stats { order: 2; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HEADER ═══════════════════════════════════ -->
+<div id="header">
+  <div class="header-top">
+
+    <div class="logo">
+      <div class="logo-bolt">⚡</div>
+      <div>
+        <div class="logo-text"><span>HUBIX</span> Tree Clearance</div>
+        <div class="logo-sub">SEO-трекер · assecuro.com.ua</div>
+      </div>
+    </div>
+
+    <div class="progress-area">
+      <div class="progress-meta">
+        <div><strong id="done-count">0</strong> <span class="pct"> / <span id="total-count">0</span> задач виконано</span></div>
+        <div id="pct-label" class="pct">0%</div>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat done"><strong id="s-done">0</strong>Готово</div>
+      <div class="stat wip"><strong id="s-wip">0</strong>В роботі</div>
+      <div class="stat todo"><strong id="s-todo">0</strong>Заплановано</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">Всі завдання</button>
+    <button class="filter-btn" data-filter="todo">Заплановано</button>
+    <button class="filter-btn" data-filter="wip">В роботі</button>
+    <button class="filter-btn" data-filter="done">Готово ✓</button>
+    <button class="filter-btn" data-filter="p0"><span class="filter-dot" style="background:var(--p0)"></span>P0 — Терміново</button>
+    <button class="filter-btn" data-filter="p1"><span class="filter-dot" style="background:var(--p1)"></span>P1 — Важливо</button>
+    <button class="filter-btn" data-filter="p2"><span class="filter-dot" style="background:var(--p2)"></span>P2</button>
+    <button class="filter-btn" data-filter="p3"><span class="filter-dot" style="background:var(--p3)"></span>P3</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MAIN ══════════════════════════════════════ -->
+<main>
+
+<!-- ──────────── ФАЗА 1 ──────────── -->
+<div class="phase" data-phase="1">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <span class="phase-bolt">⚡</span>
+    <div class="phase-title">Фаза 1 — Додавання нових товарів <span>OpenCart / ocStore</span></div>
+    <div class="phase-progress">
+      <div class="phase-mini-bar"><div class="phase-mini-fill" style="width:0%"></div></div>
+      <span class="phase-stat">0/3</span>
+    </div>
+    <span class="phase-chevron">▼</span>
+  </div>
+  <div class="phase-body">
+
+    <div class="task" data-id="t01" data-prio="p0" data-tags="opencart,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t01')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p0"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Додати товар: Tree Clearance Set HUBIX (основний комплект)</div>
+        <div class="task-hint">Заповнити картку за шаблоном зі стратегії: Title, H1, Meta, таблиця хар-ик, опис 3 сценаріїв, embed відео HUBIX, блок складу, SEO-текст внизу (~200 слів), CTA.</div>
+        <div class="task-url">→ /ziz-dlya-robit-pid-naprugoyu/chishchennya-elektroobladnannya/obrizka-gilok/tree-clearance-set-hubix</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p0">P0</span>
+          <span class="tag opencart">OpenCart</span>
+          <span class="tag content">Новий товар</span>
+          <span class="tag seo">SEO-картка</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t01')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t02" data-prio="p0" data-tags="opencart,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t02')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p0"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Додати товар: PPE Tree Clearance Set — Variant 1</div>
+        <div class="task-hint">Акцент у копірайтингу: «готово до виїзду» — 1 SKU закриває всі вимоги ЗІЗ для роботи в охоронній зоні ПЛ. Вказати стандарти EN ISO 20471, EN 388. Внутрішнє посилання ← на підкатегорію /obrizka-gilok.</div>
+        <div class="task-url">→ /obrizka-gilok/ppe-tree-clearance-set-hubix-var1</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p0">P0</span>
+          <span class="tag opencart">OpenCart</span>
+          <span class="tag content">Новий товар</span>
+          <span class="tag b2b">B2B / Підрядники</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t02')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t03" data-prio="p0" data-tags="opencart,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t03')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p0"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Додати товар: PPE Tree Clearance Set — Variant 2</div>
+        <div class="task-hint">Альтернативний склад для аварійних бригад. Підкреслити: оптимізований набір для швидкого розгортання. CTA: «→ Також переглянути Variant 1». Внутрішнє посилання між варіантами.</div>
+        <div class="task-url">→ /obrizka-gilok/ppe-tree-clearance-set-hubix-var2</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p0">P0</span>
+          <span class="tag opencart">OpenCart</span>
+          <span class="tag content">Новий товар</span>
+          <span class="tag b2b">B2B / Підрядники</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t03')">TODO</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ──────────── ФАЗА 2 ──────────── -->
+<div class="phase" data-phase="2">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <span class="phase-bolt">⚡</span>
+    <div class="phase-title">Фаза 2 — Оптимізація існуючих сторінок <span>SEO / Метатеги / Лінкінг</span></div>
+    <div class="phase-progress">
+      <div class="phase-mini-bar"><div class="phase-mini-fill" style="width:0%"></div></div>
+      <span class="phase-stat">0/6</span>
+    </div>
+    <span class="phase-chevron">▼</span>
+  </div>
+  <div class="phase-body">
+
+    <div class="task" data-id="t04" data-prio="p0" data-tags="seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t04')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p0"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Оновити метадані підкатегорії /obrizka-gilok (Title, Meta Description, H1)</div>
+        <div class="task-hint">Title: «Ізольований інструмент для обрізки гілок ЛЕП — HUBIX | ASSECURO» (60 зн.) · Meta: «Ізольовані пили і сучкорізи HUBIX для розчистки траси ПЛ від дерев. Комплекти Tree Clearance Set…» (155 зн.) · H1: «Ізольований інструмент для обрізки гілок біля ліній електропередач»</div>
+        <div class="task-url">→ /ziz-dlya-robit-pid-naprugoyu/chishchennya-elektroobladnannya/obrizka-gilok</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p0">P0</span>
+          <span class="tag seo">Метатеги</span>
+          <span class="tag seo">CTR Fix</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t04')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t05" data-prio="p0" data-tags="seo,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t05')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p0"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Написати SEO-текст вгорі підкатегорії (~120 слів, конверсійний блок)</div>
+        <div class="task-hint">Два абзаци: (1) чим ізольований інструмент відрізняється від садового і чому це критично на ЛЕП; (2) що пропонує ASSECURO — HUBIX VTT, пила, PPE-комплекти, сертифікати. Focus keyword у першому реченні.</div>
+        <div class="task-url">→ блок над OCFilter-сіткою товарів</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p0">P0</span>
+          <span class="tag seo">SEO-текст</span>
+          <span class="tag content">Копірайтинг</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t05')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t06" data-prio="p0" data-tags="seo,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t06')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p0"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Додати FAQ-блок на підкатегорію (3 запитання)</div>
+        <div class="task-hint">Q1: Чим ізольований інструмент відрізняється від садової пили? · Q2: Яка відстань від гілки до проводу вважається безпечною (ПОЕМ КМУ №14554)? · Q3: Чи потрібен допуск для роботи з інструментом поблизу ЛЕП?</div>
+        <div class="task-url">→ блок під OCFilter-сіткою, перед основним SEO-текстом</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p0">P0</span>
+          <span class="tag seo">FAQ / Schema</span>
+          <span class="tag content">Копірайтинг</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t06')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t07" data-prio="p1" data-tags="seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t07')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Оновити метадані картки HUBIX H014 (сучкоріз, L=25 мм)</div>
+        <div class="task-hint">Додати до Title/Meta слова «ЛЕП», «охоронна зона», «ізольований». Додати внутрішнє посилання на Tree Clearance Set та підкатегорію. Оновити опис: вказати діаметр гілок, відповідний стандарт.</div>
+        <div class="task-url">→ /obrizka-gilok/suchkoriz-hubix-h014-a224</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag seo">Метатеги</span>
+          <span class="tag seo">Лінкінг</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t07')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t08" data-prio="p1" data-tags="seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t08')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Оновити метадані картки HUBIX H013 (пила ізольована пряма, L=350 мм)</div>
+        <div class="task-hint">Виділити клас ізоляції (до 1 kV AC / 1.5 kV DC). Додати CTA-посилання «→ Потрібна телескопічна штанга? Tree Clearance Set включає VTT». Embed-відео від HUBIX якщо є.</div>
+        <div class="task-url">→ /obrizka-gilok/pyla-izoliovana-hubix-h013-a335</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag seo">Метатеги</span>
+          <span class="tag content">Відео</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t08')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t09" data-prio="p1" data-tags="seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t09')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Налаштувати внутрішнє посилання: хаб ↔ всі спиці ↔ статті</div>
+        <div class="task-hint">Схема: /obrizka-gilok (хаб) ↔ 3 картки товарів + пила H013 + сучкоріз H014 ↔ 4 статті блогу. Перевірити після публікації кожної статті. Не допустити канібалізації з батьківською категорією /chishchennya-elektroobladnannya.</div>
+        <div class="task-url">→ всі сторінки хаб-і-спиці</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag seo">Лінкінг</span>
+          <span class="tag seo">Канібалізація</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t09')">TODO</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ──────────── ФАЗА 3 ──────────── -->
+<div class="phase" data-phase="3">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <span class="phase-bolt">⚡</span>
+    <div class="phase-title">Фаза 3 — Контент: статті та новина <span>Блог / Інформаційний інтент</span></div>
+    <div class="phase-progress">
+      <div class="phase-mini-bar"><div class="phase-mini-fill" style="width:0%"></div></div>
+      <span class="phase-stat">0/5</span>
+    </div>
+    <span class="phase-chevron">▼</span>
+  </div>
+  <div class="phase-body">
+
+    <div class="task" data-id="t10" data-prio="p1" data-tags="content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t10')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Новина: «Новинка HUBIX Tree Clearance Set — комплект для розчистки ЛЕП» (~400 слів)</div>
+        <div class="task-hint">Лід: воєнний контекст навантаження на мережі + ПОЕМ 2022. Три позиції (по 2–3 речення). VTT-штанга — ключова технологія. Акція WYCINKA -5%. Ексерпт 257 зн. — готовий у стратегії.</div>
+        <div class="task-url">→ /news/hubix-tree-clearance-kit-2026</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag content">Новина</span>
+          <span class="tag content">Брендовий</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t10')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t11" data-prio="p1" data-tags="content,seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t11')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Стаття #3: «Ізольована пила для ЛЕП vs садова — 5 ключових відмінностей» (~800 слів)</div>
+        <div class="task-hint">Стартуємо з #3 — найлегша у написанні, швидкий CTR. Таблиця порівняння: матеріал / ізоляція / стандарт / допустима напруга / вага / ціна. Стандарти IEC 60900. Реальні наслідки роботи неізольованим інструментом.</div>
+        <div class="task-url">→ /articles/izolovany-instrument-vs-sadovy-pyla-vidminnosti</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag content">Стаття</span>
+          <span class="tag seo">ізольована пила для ЛЕП</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t11')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t12" data-prio="p1" data-tags="content,seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t12')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Стаття #1: «Розчистка траси ЛЕП від дерев: правила, строки, інструмент» (~1 200 слів)</div>
+        <div class="task-hint">Головний хаб-матеріал — важливіший для SEO. 70% знеструмлень через дерева (Держенергонагляд). ПОЕМ №14554/2022. Таблиця охоронних зон. Сезон vs аварійна розчистка. CTA → Tree Clearance Set.</div>
+        <div class="task-url">→ /articles/rozchystka-tras-lep-vid-derev</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag content">Стаття</span>
+          <span class="tag seo">розчистка траси ЛЕП</span>
+          <span class="tag content">Хаб-матеріал</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t12')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t13" data-prio="p2" data-tags="content,seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t13')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p2"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Стаття #2: «Охоронна зона ЛЕП і дерева: відстані, відповідальність, безпека» (~900 слів)</div>
+        <div class="task-hint">Таблиця: ПЛ 0,4/10/20/35/110/150/220/330 кВ → відстань охоронної зони. Хто відповідає (ОСР vs землевласник). Штрафи за самосад в охоронній зоні. CTA → PPE Tree Clearance Kit.</div>
+        <div class="task-url">→ /articles/okhoronna-zona-lep-dereva-pravyla</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p2">P2</span>
+          <span class="tag content">Стаття</span>
+          <span class="tag seo">охоронна зона ЛЕП</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t13')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t14" data-prio="p2" data-tags="content,seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t14')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p2"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Стаття #4: «Аварійна обрізка дерев на ЛЕП — алгоритм дій і чек-ліст бригади» (~1 000 слів)</div>
+        <div class="task-hint">Тригери аварійної розчистки: шторм, ожеледь, обстріл. Алгоритм: оцінка небезпеки → наряд → перевірка ЗІЗ → техніка роботи зі штангою VTT → документування. CTA → PPE Kit, доставка 1–2 дні.</div>
+        <div class="task-url">→ /articles/avariyna-obrizka-derev-lep-dii-bryhady</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p2">P2</span>
+          <span class="tag content">Стаття</span>
+          <span class="tag seo">аварійна обрізка ЛЕП</span>
+          <span class="tag b2b">Підрядники</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t14')">TODO</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ──────────── ФАЗА 4 ──────────── -->
+<div class="phase" data-phase="4">
+  <div class="phase-header" onclick="togglePhase(this)">
+    <span class="phase-bolt">⚡</span>
+    <div class="phase-title">Фаза 4 — B2B та Off-page <span>ДТЕК / Підрядники / Реклама</span></div>
+    <div class="phase-progress">
+      <div class="phase-mini-bar"><div class="phase-mini-fill" style="width:0%"></div></div>
+      <span class="phase-stat">0/5</span>
+    </div>
+    <span class="phase-chevron">▼</span>
+  </div>
+  <div class="phase-body">
+
+    <div class="task" data-id="t15" data-prio="p1" data-tags="b2b,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t15')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p1"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Підготувати тендерний PDF: технічна специфікація Tree Clearance Set + PPE Kit</div>
+        <div class="task-hint">1–2 сторінки: склад комплектів, стандарти CE, строки постачання, реквізити. Формат: завантаження зі сторінки товару. Аудиторія: відділи закупівель ОСР / підрядників ДТЕК.</div>
+        <div class="task-url">→ PDF для завантаження на картках товарів</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p1">P1</span>
+          <span class="tag b2b">B2B Документ</span>
+          <span class="tag content">PDF</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t15')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t16" data-prio="p2" data-tags="b2b">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t16')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p2"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Надіслати пряму комерційну пропозицію підрядникам ДТЕК (email + LinkedIn)</div>
+        <div class="task-hint">Відправник — assecuro.ua (корпоративний сайт). Акцент: комплект закриває вимоги ЗІЗ одним SKU, CE-сертифікати, наявність на складі, рахунок-фактура. Прикласти тендерний PDF.</div>
+        <div class="task-url">→ Off-page B2B аутріч</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p2">P2</span>
+          <span class="tag b2b">Аутріч</span>
+          <span class="tag b2b">ДТЕК</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t16')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t17" data-prio="p2" data-tags="b2b,content">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t17')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p2"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Опублікувати LinkedIn-пост про Tree Clearance рішення HUBIX</div>
+        <div class="task-hint">Аудиторія: інженери ОСР, HSE-менеджери, відділи закупівель. Формат: коротка проблема (гілки → відключення) + рішення (HUBIX VTT) + посилання на статтю #1. Хештеги: #безпека #ЛЕП #охоронапраці #HUBIX #ASSECURO</div>
+        <div class="task-url">→ LinkedIn ASSECURO UKRAINE</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p2">P2</span>
+          <span class="tag b2b">LinkedIn</span>
+          <span class="tag content">Соцмережі</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t17')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t18" data-prio="p3" data-tags="ads,seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t18')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p3"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">Налаштувати Google Ads Search після індексації сторінок (старт — тиждень 4–5)</div>
+        <div class="task-hint">Target KW: «ізольований інструмент для обрізки гілок ЛЕП», «ізольована пила купити», «Tree Clearance HUBIX», «PPE для розчистки ЛЕП». Бюджет від 150 USD/міс. Лендінг → підкатегорія /obrizka-gilok.</div>
+        <div class="task-url">→ Google Ads · запуск після фаз 1–3</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p3">P3</span>
+          <span class="tag ads">Google Ads</span>
+          <span class="tag seo">Search</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t18')">TODO</div>
+    </div>
+
+    <div class="task" data-id="t19" data-prio="p3" data-tags="seo">
+      <div class="task-status">
+        <div class="cb" onclick="cycleStatus('t19')">
+          <svg class="icon-wip" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#4a9ecc" stroke-width="2"/></svg>
+          <svg class="icon-done" width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#3ecf8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prio p3"></div>
+      </div>
+      <div class="task-body">
+        <div class="task-title">GSC-моніторинг: перевірити індексацію всіх нових сторінок (через 14 днів після публікації)</div>
+        <div class="task-hint">Перевірити: 3 картки товарів + підкатегорія + 4 статті + 1 новина = 9 URL. Ціль: індексація протягом 14 днів. Якщо немає — Submit via GSC URL Inspection. Відстежити перші позиції і CTR через 30–45 днів.</div>
+        <div class="task-url">→ Google Search Console · assecuro.com.ua</div>
+        <div class="task-tags">
+          <span class="task-prio-label prio-tag-p3">P3</span>
+          <span class="tag seo">GSC</span>
+          <span class="tag seo">Моніторинг</span>
+        </div>
+      </div>
+      <div class="status-badge todo" onclick="cycleStatus('t19')">TODO</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="empty-state" id="empty-state">
+  <span class="bolt">⚡</span>
+  За обраним фільтром задачі не знайдено.
+</div>
+
+</main>
+
+<!-- ═══════════════════════════ SCRIPT ════════════════════════════════════ -->
+<script>
+  const STORAGE_KEY = 'hubix-tree-clearance-seo-v1';
+
+  // ── State ────────────────────────────────────────────────────────────────
+  // status: 'todo' | 'wip' | 'done'
+  let state = {};
+
+  function loadState() {
+    try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { state = {}; }
+  }
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // ── Status cycle: todo → wip → done → todo ───────────────────────────────
+  function cycleStatus(id) {
+    const cur = state[id] || 'todo';
+    const next = cur === 'todo' ? 'wip' : cur === 'wip' ? 'done' : 'todo';
+    state[id] = next;
+    saveState();
+    applyTask(id);
+    updateAll();
+  }
+
+  function applyTask(id) {
+    const task = document.querySelector(`.task[data-id="${id}"]`);
+    if (!task) return;
+    const st   = state[id] || 'todo';
+    const cb   = task.querySelector('.cb');
+    const badge = task.querySelector('.status-badge');
+
+    cb.className = 'cb ' + st;
+    badge.className = 'status-badge ' + st;
+    badge.textContent = st === 'todo' ? 'TODO' : st === 'wip' ? 'В РОБОТІ' : 'ГОТОВО ✓';
+    task.classList.toggle('done-state', st === 'done');
+  }
+
+  // ── Update all counters / bars ────────────────────────────────────────────
+  function updateAll() {
+    const tasks = document.querySelectorAll('.task');
+    let done = 0, wip = 0, todo = 0;
+    tasks.forEach(t => {
+      const s = state[t.dataset.id] || 'todo';
+      if (s === 'done') done++;
+      else if (s === 'wip') wip++;
+      else todo++;
+    });
+    const total = tasks.length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+
+    document.getElementById('done-count').textContent = done;
+    document.getElementById('total-count').textContent = total;
+    document.getElementById('pct-label').textContent = pct + '%';
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('s-done').textContent = done;
+    document.getElementById('s-wip').textContent  = wip;
+    document.getElementById('s-todo').textContent = todo;
+
+    // Phase bars
+    document.querySelectorAll('.phase').forEach(phase => {
+      const pts = phase.querySelectorAll('.task');
+      let pd = 0;
+      pts.forEach(t => { if ((state[t.dataset.id] || 'todo') === 'done') pd++; });
+      const pp = pts.length ? Math.round(pd / pts.length * 100) : 0;
+      phase.querySelector('.phase-mini-fill').style.width = pp + '%';
+      phase.querySelector('.phase-stat').textContent = pd + '/' + pts.length;
+    });
+  }
+
+  // ── Phase collapse ────────────────────────────────────────────────────────
+  function togglePhase(header) {
+    header.classList.toggle('collapsed');
+    header.nextElementSibling.classList.toggle('collapsed');
+  }
+
+  // ── Filter ────────────────────────────────────────────────────────────────
+  let activeFilter = 'all';
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      applyFilter();
+    });
+  });
+
+  function applyFilter() {
+    let anyVisible = false;
+
+    document.querySelectorAll('.task').forEach(task => {
+      const id    = task.dataset.id;
+      const prio  = task.dataset.prio;
+      const st    = state[id] || 'todo';
+      let show = false;
+
+      if (activeFilter === 'all')  show = true;
+      else if (activeFilter === 'todo') show = st === 'todo';
+      else if (activeFilter === 'wip')  show = st === 'wip';
+      else if (activeFilter === 'done') show = st === 'done';
+      else if (['p0','p1','p2','p3'].includes(activeFilter)) show = prio === activeFilter;
+
+      task.classList.toggle('hidden', !show);
+      if (show) anyVisible = true;
+    });
+
+    // Show/hide phases based on visible tasks
+    document.querySelectorAll('.phase').forEach(phase => {
+      const visible = Array.from(phase.querySelectorAll('.task')).some(t => !t.classList.contains('hidden'));
+      phase.classList.toggle('hidden', !visible);
+    });
+
+    document.getElementById('empty-state').style.display = anyVisible ? 'none' : 'block';
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  loadState();
+  document.querySelectorAll('.task').forEach(t => applyTask(t.dataset.id));
+  updateAll();
+  applyFilter();
+</script>
+</body>
+</html>
